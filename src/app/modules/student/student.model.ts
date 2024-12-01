@@ -107,6 +107,10 @@ const studentSchema = new Schema<TStudent>(
     },
     localGuardian: { type: newLocalGurdn, required: false },
     isDeleted: { type: Boolean, default: false },
+    admissionSemester: {
+      type: Schema.Types.ObjectId,
+      ref: 'academic-semester',
+    },
   },
   {
     toJSON: {
