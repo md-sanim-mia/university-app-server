@@ -1,16 +1,11 @@
+import { academicSemesterNameCodeMapper } from './academic.semester.const';
 import {
   TAcademicSemester,
-  TAcademicSemesterNameCodeMapper,
+  TAcademicSemesterUpdate,
 } from './academic.semester.interface';
 import { AcademicSemester } from './academic.semester.model';
 
 const createAcademicSemesterForDb = async (semester: TAcademicSemester) => {
-  const academicSemesterNameCodeMapper: TAcademicSemesterNameCodeMapper = {
-    Autum: '01',
-    Summar: '02',
-    Fall: '03',
-  };
-
   if (academicSemesterNameCodeMapper[semester.name] !== semester.code) {
     throw new Error('Invalid semester code ');
   }
@@ -32,19 +27,20 @@ const getSingleAcademicSemesterForDb = async (semesterId: string) => {
 
 const updateSingleAcademicSemesterForDb = async (
   semesterId: string,
-  semesterUpdateData: TAcademicSemester
+  semesterUpdateData: TAcademicSemesterUpdate
 ) => {
-  const result = await AcademicSemester.updateOne(
+  if (
+    semesterUpdateData.name &&
+    semesterUpdateData.code &&
+    academicSemesterNameCodeMapper[semesterUpdateData.name] !==
+      semesterUpdateData.code
+  ) {
+    throw new Error('Invalid semester code ');
+  }
+  const result = await AcademicSemester.findOneAndUpdate(
     { _id: semesterId },
-    {
-      $set: {
-        name: semesterUpdateData.name,
-        year: semesterUpdateData.year,
-        code: semesterUpdateData.code,
-        startMonth: semesterUpdateData.startMonth,
-        endMonth: semesterUpdateData.endMonth,
-      },
-    }
+    semesterUpdateData,
+    { new: true }
   );
   return result;
 };

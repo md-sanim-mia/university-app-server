@@ -1,11 +1,12 @@
 import confing from '../../confing';
+import { AcademicSemester } from '../AcademicSemester/academic.semester.model';
 import { TStudent } from '../student/student.interface';
 import students from '../student/student.model';
+import { generateStudentId } from './user.utility';
 import { Tusers } from './users.interface';
-
 import Users from './users.model';
 
-const createStudentForDB = async (password: string, studentData: TStudent) => {
+const createStudentForDB = async (password: string, playood: TStudent) => {
   //create user object
   const userData: Partial<Tusers> = {};
 
@@ -16,14 +17,21 @@ const createStudentForDB = async (password: string, studentData: TStudent) => {
 
   userData.role = 'student';
 
-  //-----set munilly student id -------
-  userData.id = '2030100001';
+  //find academic semester------
+  const admissionSemester = await AcademicSemester.findById(
+    playood.admissionSemester
+  );
+  if (!admissionSemester) {
+    throw new Error('id can not finde');
+  }
+  //-----set  student id -------
+  userData.id = await generateStudentId(admissionSemester);
   const NewUsers = await Users.create(userData);
   //create student
   if (Object.keys(NewUsers).length) {
-    studentData.id = NewUsers.id;
-    studentData.user = NewUsers._id;
-    const newStudent = await students.create(studentData);
+    playood.id = NewUsers.id;
+    playood.user = NewUsers._id;
+    const newStudent = await students.create(playood);
     return newStudent;
   }
 
