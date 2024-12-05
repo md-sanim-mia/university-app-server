@@ -40,4 +40,5 @@ export type TStudent = {
   localGuardian?: localGuardian; // optional field for local guardian
   isDeleted: boolean;
   admissionSemester: Types.ObjectId;
+  academicDepartment: Types.ObjectId;
 };

@@ -6,7 +6,7 @@ const gobalErrorHandilers = (
   res: Response,
   next: NextFunction
 ) => {
-  const statuscode = 500;
+  const statuscode = err.statuscode || 500;
   const message = err.message || 'somthing waent wrong';
 
   res.status(statuscode).json({

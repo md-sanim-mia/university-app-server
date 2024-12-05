@@ -19,6 +19,21 @@ export const singleStudent = asyncCatch(async (req, res) => {
     data: result,
   });
 });
+export const updateStudent = asyncCatch(async (req, res) => {
+  const { studentId } = req.params;
+  const updateData = req.body;
+
+  const result = await studentServices.updateSingleStudentFromDB(
+    studentId,
+    updateData
+  );
+
+  res.status(200).json({
+    success: true,
+    message: 'student data is deleted',
+    data: result,
+  });
+});
 
 export const deletStudent = asyncCatch(async (req, res) => {
   const { studentId } = req.params;

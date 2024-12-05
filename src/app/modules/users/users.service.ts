@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import confing from '../../confing';
 import { AcademicSemester } from '../AcademicSemester/academic.semester.model';
 import { TStudent } from '../student/student.interface';
@@ -5,6 +6,8 @@ import students from '../student/student.model';
 import { generateStudentId } from './user.utility';
 import { Tusers } from './users.interface';
 import Users from './users.model';
+import { AppError } from '../../errors/AppError';
+import { StatusCodes } from 'http-status-codes';
 
 const createStudentForDB = async (password: string, playood: TStudent) => {
   //create user object
@@ -24,18 +27,31 @@ const createStudentForDB = async (password: string, playood: TStudent) => {
   if (!admissionSemester) {
     throw new Error('id can not finde');
   }
-  //-----set  student id -------
-  userData.id = await generateStudentId(admissionSemester);
-  const NewUsers = await Users.create(userData);
-  //create student
-  if (Object.keys(NewUsers).length) {
-    playood.id = NewUsers.id;
-    playood.user = NewUsers._id;
-    const newStudent = await students.create(playood);
-    return newStudent;
-  }
 
-  return NewUsers;
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    //-----set  student id -------
+    userData.id = await generateStudentId(admissionSemester);
+    const newUsers = await Users.create([userData], { session });
+    //create student
+    if (!newUsers.length) {
+      throw new AppError(StatusCodes.BAD_REQUEST, 'failed to create users');
+    }
+    playood.id = newUsers[0].id;
+    playood.user = newUsers[0]._id;
+    const newStudent = await students.create([playood], { session });
+    if (!newStudent) {
+      throw new AppError(StatusCodes.BAD_REQUEST, 'failed to create student');
+    }
+    await session.commitTransaction();
+    await session.endSession();
+    return newStudent;
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new AppError(StatusCodes.BAD_REQUEST, 'failed to create student');
+  }
 };
 
 export const usersServices = {

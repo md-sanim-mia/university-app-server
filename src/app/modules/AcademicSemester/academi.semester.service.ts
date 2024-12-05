@@ -16,7 +16,6 @@ const createAcademicSemesterForDb = async (semester: TAcademicSemester) => {
 
 const getAllAcademicSemesterForDb = async () => {
   const result = await AcademicSemester.find({});
-  console.log(result);
   return result;
 };
 

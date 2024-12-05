@@ -1,3 +1,4 @@
+import { late } from 'zod';
 import { TAcademicSemester } from '../AcademicSemester/academic.semester.interface';
 import Users from './users.model';
 const findLastStudentId = async () => {
@@ -9,15 +10,31 @@ const findLastStudentId = async () => {
   )
     .sort({ createdAt: 1 })
     .lean();
-  return lastStudent?.id ? lastStudent.id.substring(6) : undefined;
+  return lastStudent?.id ? lastStudent.id : undefined;
 };
+
 //--------- generate autmitc student id ----------
 export const generateStudentId = async (playood: TAcademicSemester) => {
-  const currentId = (0).toString();
-  const lastStudentId = findLastStudentId();
-  const lastStudentSemesterCode = lastStudentId.substring(6);
-  let incrementId = (Number(currentId) + 1).toString().padStart(4, '0');
-  incrementId = `${playood.year}${playood.code}${incrementId}`;
+  let currentId = (0).toString();
+  const lastStudentId = await findLastStudentId();
+  console.log(lastStudentId);
+  if (lastStudentId) {
+    const lastStudentSemesterCode = lastStudentId.substring(4, 6);
+    const lastStudentYear = lastStudentId.substring(0, 4);
+    const currentSemesterCode = playood.code;
+    const currentSemesterYear = playood.year;
 
+    if (
+      lastStudentSemesterCode === currentSemesterCode &&
+      lastStudentYear === currentSemesterYear
+    ) {
+      currentId = lastStudentId.substring(6);
+    }
+  }
+
+  let incrementId = (Number(currentId) + 1).toString().padStart(4, '0');
+  console.log(incrementId);
+  incrementId = `${playood.year}${playood.code}${incrementId}`;
+  console.log(incrementId);
   return incrementId;
 };
