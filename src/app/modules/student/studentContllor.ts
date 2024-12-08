@@ -1,7 +1,7 @@
 import { studentServices } from './student.service';
 import { asyncCatch } from '../../utility/async.catch';
 export const getAllStudnetForDb = asyncCatch(async (req, res, next) => {
-  const result = await studentServices.getaAllStudentDB();
+  const result = await studentServices.getaAllStudentDB(req.query);
   res.status(200).json({
     success: true,
     message: 'this is all student data',
