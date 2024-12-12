@@ -7,6 +7,7 @@ class queryBulders<T> {
     this.modelQuery = modelQuery;
     this.query = query;
   }
+
   //-----------implement the search fields--------------------------------
   serarch(serarchblefields: string[]) {
     if (this?.query?.serarchTerm) {
@@ -21,6 +22,7 @@ class queryBulders<T> {
     }
     return this;
   }
+
   //-----------implement the  filtering option--------------------------------
   filter() {
     const queryObj = { ...this.query };
