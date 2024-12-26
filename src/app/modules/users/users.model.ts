@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 const usersSchema = new Schema<Tusers>(
   {
     id: { type: String, required: true },
-    password: { type: String, required: true,unique:false },
+    password: { type: String, required: true, unique: false, select: 0 },
     needsPasswordChange: { type: Boolean, default: false },
     role: { type: String, enum: ['admin', 'student', 'faculty'] },
     status: {
@@ -14,6 +14,12 @@ const usersSchema = new Schema<Tusers>(
       default: 'in-progress',
     },
     isDeleted: { type: Boolean, default: false },
+
+    passwordChengeAt: {
+      type: Date,
+      required: false,
+      default: new Date(),
+    },
   },
   { timestamps: true }
 );
@@ -48,6 +54,9 @@ usersSchema.pre('aggregate', function (next) {
   next();
 });
 
+// usersSchema.statics.isUserExistsByCustomId = async function (id: string) {
+//   return await Users.findOne({ id });
+// };
 const Users = model<Tusers>('users', usersSchema);
 
 export default Users;
