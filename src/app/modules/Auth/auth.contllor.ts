@@ -37,9 +37,30 @@ const refreshToken = asyncCatch(async (req, res) => {
     data: result,
   });
 });
+const forgetPassword = asyncCatch(async (req, res) => {
+  const id = req.body.id;
+  const result = await authService.forgetPasswordForDb(id);
+
+  res.status(200).json({
+    success: true,
+    message: 'forget password link is success fully generated',
+  });
+});
+const resetPassword = asyncCatch(async (req, res) => {
+  const playood = req.body;
+  const token = req.headers.authorization?.split(' ')[1] as string;
+  const result = await authService.resetPasswordForDb(playood, token);
+
+  res.status(200).json({
+    success: true,
+    message: 'success fully reset your password',
+  });
+});
 
 export const authContllors = {
   authLogingUser,
   chengePassword,
   refreshToken,
+  forgetPassword,
+  resetPassword,
 };

@@ -5,7 +5,7 @@ import { TChengePassword, TLogingUser } from './auth.interface';
 import bcrypt from 'bcrypt';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import confing from '../../confing';
-import { createToken } from './auth.utils';
+import { createToken, sendEmail } from './auth.utils';
 const authLogingUserForDb = async (playood: TLogingUser) => {
   const { id, password } = playood;
 
@@ -173,8 +173,90 @@ const refreshTokenDb = async (token: string) => {
   );
   return { accessToken };
 };
+
+const forgetPasswordForDb = async (playood: string) => {
+  const isUserExist = await Users.findOne({ id: playood });
+  if (!isUserExist) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'this  user is not found');
+  }
+  const isDeletedExist = isUserExist.isDeleted;
+
+  if (isDeletedExist) {
+    throw new AppError(
+      StatusCodes.NOT_FOUND,
+      'this  user already deleted for db'
+    );
+  }
+  const checkStaust = isUserExist.status;
+
+  if (checkStaust === 'blocked') {
+    throw new AppError(StatusCodes.NOT_FOUND, 'this  user already blocked ');
+  }
+
+  const jwtPayload = {
+    userId: isUserExist?.id,
+    role: isUserExist?.role,
+  };
+
+  const restToken = createToken(
+    jwtPayload,
+    confing.jwt_access_token as string,
+    '8m'
+  );
+
+  const resetLink = `http://localhost:5173?id=${isUserExist.id}&&token=${restToken}`;
+  sendEmail(isUserExist.email, resetLink);
+  return null;
+};
+const resetPasswordForDb = async (
+  playood: { id: string; newPassword: string },
+  token: string
+) => {
+  const isUserExist = await Users.findOne({ id: playood.id });
+  if (!isUserExist) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'this  user is not found');
+  }
+  const isDeletedExist = isUserExist.isDeleted;
+
+  if (isDeletedExist) {
+    throw new AppError(
+      StatusCodes.NOT_FOUND,
+      'this  user already deleted for db'
+    );
+  }
+  const checkStaust = isUserExist.status;
+
+  if (checkStaust === 'blocked') {
+    throw new AppError(StatusCodes.NOT_FOUND, 'this  user already blocked ');
+  }
+
+  const decoded = jwt.verify(
+    token,
+    confing.jwt_access_token as string
+  ) as JwtPayload;
+
+  if (playood.id !== decoded.id) {
+    throw new AppError(StatusCodes.FORBIDDEN, 'FORBIDDEN access ');
+  }
+  const hashNewPassword = bcrypt.hash(playood.newPassword, 10);
+  if (!hashNewPassword) {
+    throw new AppError(StatusCodes.FAILED_DEPENDENCY, 'solt generate problem ');
+  }
+  await Users.findOneAndUpdate(
+    { id: isUserExist.id },
+    {
+      password: hashNewPassword,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+};
 export const authService = {
   authLogingUserForDb,
   chengePasswordForDb,
   refreshTokenDb,
+  forgetPasswordForDb,
+  resetPasswordForDb,
 };

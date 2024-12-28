@@ -8,6 +8,7 @@ export interface Tusers {
   status: 'in-progress' | 'blocked';
   isDeleted: boolean;
   passwordChengeAt?: Date;
+  email: string;
 }
 
 export interface UserModel extends Model<Tusers> {

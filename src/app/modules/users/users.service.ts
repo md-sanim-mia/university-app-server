@@ -17,8 +17,13 @@ import { AcademicDepartment } from '../academicDepartment/academic.department.mo
 import { Faculty } from '../faculty/faculty.model';
 import { TAdmin } from '../admin/admin.interface';
 import { Admin } from '../admin/admin.model';
+import { sendImageToCloudinary } from '../Auth/auth.utils';
 
-const createStudentForDB = async (password: string, playood: TStudent) => {
+const createStudentForDB = async (
+  file: any,
+  password: string,
+  playood: TStudent
+) => {
   //create user object
   const userData: Partial<Tusers> = {};
 
@@ -42,13 +47,17 @@ const createStudentForDB = async (password: string, playood: TStudent) => {
     session.startTransaction();
     //-----set  student id -------
     userData.id = await generateStudentId(admissionSemester);
+    const imageName = `${userData?.id}${playood?.name?.firstName}`;
+    const path = file?.path;
+    const profileImg = await sendImageToCloudinary(imageName, path);
+    console.log(profileImg);
     const newUsers = await Users.create([userData], { session });
-    //create student
     if (!newUsers.length) {
       throw new AppError(StatusCodes.BAD_REQUEST, 'failed to create users');
     }
     playood.id = newUsers[0].id;
     playood.user = newUsers[0]._id;
+
     const newStudent = await students.create([playood], { session });
     if (!newStudent) {
       throw new AppError(StatusCodes.BAD_REQUEST, 'failed to create student');
@@ -149,8 +158,60 @@ const createAdminForDb = async (password: string, playood: TAdmin) => {
     throw new Error(err);
   }
 };
+const getMeForDb = async (id: string, role: string) => {
+  const isUserExist = await Users.findOne({ id: id });
+  if (!isUserExist) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'this  user is not found');
+  }
+  const isDeletedExist = isUserExist.isDeleted;
 
+  if (isDeletedExist) {
+    throw new AppError(
+      StatusCodes.NOT_FOUND,
+      'this  user already deleted for db'
+    );
+  }
+  const checkStaust = isUserExist.status;
+
+  if (checkStaust === 'blocked') {
+    throw new AppError(StatusCodes.NOT_FOUND, 'this  user already blocked ');
+  }
+
+  let result = null;
+  if (role === 'student') {
+    result = await students.findOne({ id });
+  }
+  if (role === 'faculty') {
+    result = await Faculty.findOne({ id });
+  }
+  if (role === 'admin') {
+    result = await Admin.findOne({ id });
+  }
+  return result;
+};
+
+const chengeStaustForDb = async (id: string, playood: { status: string }) => {
+  const isUserExist = await Users.findById(id);
+  if (!isUserExist) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'this  user is not found');
+  }
+  const isDeletedExist = isUserExist.isDeleted;
+
+  if (isDeletedExist) {
+    throw new AppError(
+      StatusCodes.NOT_FOUND,
+      'this  user already deleted for db'
+    );
+  }
+  const result = await Users.findByIdAndUpdate(id, playood, {
+    new: true,
+    runValidators: true,
+  });
+  return result;
+};
 export const usersServices = {
   createStudentForDB,
   createFacultyForDb,
+  getMeForDb,
+  chengeStaustForDb,
 };
