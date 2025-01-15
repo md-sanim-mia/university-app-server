@@ -11,10 +11,18 @@ const auth = (...requiredRoles: TUserRole[]) => {
     if (!token) {
       throw new AppError(StatusCodes.UNAUTHORIZED, 'you are not authorization');
     }
-    const decoded = jwt.verify(
-      token,
-      confing.jwt_access_token as string
-    ) as JwtPayload;
+    let decoded;
+    try {
+      decoded = jwt.verify(
+        token,
+        confing.jwt_access_token as string
+      ) as JwtPayload;
+    } catch (error) {
+      if (error) {
+        throw new AppError(StatusCodes.UNAUTHORIZED, 'you are unauthorized');
+      }
+    }
+
     const role = decoded?.role;
     const id = decoded?.userId;
     const iat = decoded?.iat as number;

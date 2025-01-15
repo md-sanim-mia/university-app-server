@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 const usersSchema = new Schema<Tusers>(
   {
     id: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: false },
     password: { type: String, required: true, unique: false, select: 0 },
     needsPasswordChange: { type: Boolean, default: false },
     role: { type: String, enum: ['admin', 'student', 'faculty'] },

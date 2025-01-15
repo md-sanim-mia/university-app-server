@@ -4,6 +4,16 @@ import { AppError } from '../../errors/AppError';
 import { StatusCodes } from 'http-status-codes';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import confing from '../../confing';
+const createAdmin = asyncCatch(async (req, res) => {
+  const { password, adminData } = req.body;
+  console.log(adminData);
+  const result = await usersServices.createAdminForDb(password, adminData);
+  res.status(200).json({
+    success: true,
+    message: 'admin is create success fully',
+    data: result,
+  });
+});
 const createStudent = asyncCatch(async (req, res) => {
   const { password, student: satudentData } = req.body;
   console.log(req?.file);
@@ -61,4 +71,5 @@ export const usersContllors = {
   createFaculty,
   getMe,
   chengeStaust,
+  createAdmin,
 };

@@ -3,6 +3,8 @@ import { gurdingName, TStudent, userName } from './student.interface';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 import confing from '../../confing';
+import { AppError } from '../../errors/AppError';
+import { StatusCodes } from 'http-status-codes';
 const NewName = new Schema<userName>({
   firstName: {
     type: String,
@@ -124,9 +126,12 @@ const studentSchema = new Schema<TStudent>(
   }
 );
 
-studentSchema.virtual('fullName').get(function () {
-  return `${this.name.firstName} ${this.name.middleName} ${this.name.lastName}`;
-});
+// studentSchema.virtual('fullName').get(function () {
+//   if (!this.name || !this.name.firstName || !this.name.lastName) {
+//     throw new AppError(StatusCodes.BAD_REQUEST, 'somting is wrong');
+//   }
+//   return `${this.name.firstName || 'N/A'} ${this.name.lastName || 'N/A'}`;
+// });
 
 const students = model<TStudent>('Students', studentSchema);
 export default students;

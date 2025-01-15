@@ -7,6 +7,7 @@ import auth from '../../middlwares/auth';
 import { USER_ROLE } from '../Auth/auth.constan';
 import { usersValidation } from './users.validation';
 import { upload } from '../Auth/auth.utils';
+import { adminValidation } from '../admin/admin.validation';
 const router = express.Router();
 
 router.post(
@@ -21,6 +22,11 @@ router.post(
   usersContllors.createStudent
 );
 
+router.post(
+  '/create-admin',
+  // validateRequest(adminValidation.adminValidationSchema),
+  usersContllors.createAdmin
+);
 router.post(
   '/create-faculty',
   validateRequest(facultyValidation.facultyValidationSchema),

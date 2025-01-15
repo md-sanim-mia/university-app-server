@@ -27,11 +27,6 @@ const facultySchema = new Schema<TAdmin>({
   address: { type: String, required: true },
   permanentAddress: { type: String, required: true },
   profileImage: { type: String, required: true },
-  academicDepartment: {
-    type: Schema.Types.ObjectId,
-    ref: 'academicDepartment',
-    required: true,
-  },
   isDeleted: { type: Boolean, default: false, required: false },
 });
 

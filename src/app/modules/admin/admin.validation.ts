@@ -5,17 +5,14 @@ import { BloodGroups, Gender } from './admin.constan';
 const adminValidationSchema = z.object({
   body: z.object({
     name: z.object({
-      firstName: z.string().min(1, 'First name is required'),
+      firstName: z.string(),
       middleName: z.string().optional(),
-      lastName: z.string().min(1, 'Last name is required'),
-    }),
-    user: z.string().min(1, 'User ID is required'), // Assuming this is a string (ObjectId as string)
-    designation: z.string().min(1, 'Designation is required'),
+      lastName: z.string(),
+    }), // Assuming this is a string (ObjectId as string)
+    designation: z.string(),
     gender: z.enum([...Gender] as [string, ...string[]]),
-    contactNumber: z.string().min(1, 'Contact number is required'),
-    emergencyContactNumber: z
-      .string()
-      .min(1, 'Emergency contact number is required'),
+    contactNumber: z.string(),
+    emergencyContactNumber: z.string(),
     email: z
       .string()
       .email('Invalid email address')
@@ -25,8 +22,6 @@ const adminValidationSchema = z.object({
     address: z.string().min(1, 'Address is required'),
     permanentAddress: z.string().min(1, 'Permanent address is required'),
     profileImage: z.string().min(1, 'Profile image URL is required'),
-    academicDepartment: z.string().min(1, 'Academic Department ID is required'), // Assuming ObjectId as string
-    isDeleted: z.boolean().default(false).optional(),
   }),
 });
 const updateAdminValidationSchema = z.object({

@@ -127,7 +127,6 @@ const createAdminForDb = async (password: string, playood: TAdmin) => {
 
   //set role
   userData.role = 'admin';
-
   const session = await mongoose.startSession();
 
   try {
@@ -136,6 +135,7 @@ const createAdminForDb = async (password: string, playood: TAdmin) => {
 
     userData.id = await generateAdminId();
     //create user
+    console.log(userData);
     const newUser = await Users.create([userData], { session });
 
     if (!newUser.length) {
@@ -214,4 +214,5 @@ export const usersServices = {
   createFacultyForDb,
   getMeForDb,
   chengeStaustForDb,
+  createAdminForDb,
 };

@@ -31,6 +31,5 @@ export type TAdmin = {
   address: string; // Current address
   permanentAddress: string; // Permanent address
   profileImage: String;
-  academicDepartment: Types.ObjectId;
   isDeleted?: boolean;
 };

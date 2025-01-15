@@ -49,7 +49,7 @@ const authLogingUserForDb = async (playood: TLogingUser) => {
   const accessToken = createToken(
     jwtPayload,
     confing.jwt_access_token as string,
-    '4d'
+    '3d'
   );
   const refreshToken = createToken(
     jwtPayload,
